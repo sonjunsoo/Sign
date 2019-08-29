@@ -1,6 +1,10 @@
+<%@page import="javax.sql.DataSource"%>
+<%@page import="javax.naming.InitialContext"%>
+<%@page import="javax.naming.Context"%>
 <%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
@@ -15,26 +19,32 @@
 	String pw = request.getParameter("password");
 	String cp = request.getParameter("confirm-password");
 
-// 	System.out.println(name);
+ 	System.out.println(name);
+ 	System.out.println(email);
+ 	System.out.println(pw);
+ 	System.out.println(cp);
+ 	if (!pw.equals(cp)){
+ 		out.println("<script> alert('패스워드 재확인!'); location.href= '../Signup.jsp';</script>");
+ 		return;
+ 	}
+ 	
+ 	
 // 	DB저장
 %>
-    <%
+<%
 Connection conn=null;
-String driver = "oracle.jdbc.driver.OracleDriver";
-String url = "jdbc:oracle:thin:@localhost:1521:KnDB";
-	
 Boolean connect = false;
-	
+String sql = "INSERT INTO users (NAME, PW, EMAIL) VALUES (?, ?, ?)";
 try{
-	String sql = "INSERT INTO USERS (NAME, PW, EMAIL) VALUES (?, ?, ?)";
-    Class.forName(driver);
-    conn=DriverManager.getConnection(url,"knuser","system"); //자신의 아이디와 비밀번호
+	Context init = new InitialContext();
+    DataSource ds = (DataSource)init.lookup("java:comp/env/jdbc/kndb");
+    conn = ds.getConnection();
+    
     PreparedStatement pstmt = conn.prepareStatement(sql);
     pstmt.setString(1, name);
     pstmt.setString(2, pw);
     pstmt.setString(3, email);
-	pstmt.executeUpdate();
-	
+    pstmt.executeUpdate();
     connect = true;
     conn.close();
 }catch(Exception e){
@@ -42,6 +52,13 @@ try{
     e.printStackTrace();
 }
 %>
+<%
+if(connect==true){
+System.out.println("연결되었습니다.");
+}else{
+	out.println("회원가입에 실패하였습니다.");
+	return;
+}%> 
     
 <!DOCTYPE html>
 <html>

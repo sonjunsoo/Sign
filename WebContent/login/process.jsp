@@ -1,7 +1,11 @@
 <%@page import="java.sql.ResultSet"%>
+<%@page import="javax.sql.DataSource"%>
+<%@page import="javax.naming.InitialContext"%>
+<%@page import="javax.naming.Context"%>
 <%@page import="java.sql.PreparedStatement"%>
 <%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
+
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     
@@ -10,31 +14,33 @@
 //username, password
     request.setCharacterEncoding("UTF-8");
 
-	String name = request.getParameter("username");
+	String email = request.getParameter("email");
 	String pw = request.getParameter("password");
-	
+	String name = request.getParameter("username");
+
+//DB에서 받아온 정보로 email과 password 비교
+
 	Connection conn=null;
-	String driver = "oracle.jdbc.driver.OracleDriver";
-	String url = "jdbc:oracle:thin:@localhost:1521:KnDB";
-		
 	Boolean connect = false;
-	Boolean isLogin = false;
-		
+	Boolean isLogin = false;	
+	String sql = "SELECT * FROM users WHERE email=? AND pw =?";
+	
 	try{
-		String sql = "select * from users where name = ? and pw = ? ";
-	    Class.forName(driver);
-	    conn=DriverManager.getConnection(url,"knuser","system"); //자신의 아이디와 비밀번호
-	    PreparedStatement pstmt = conn.prepareStatement(sql);	
-	    pstmt.setString(1,name);
-	    pstmt.setString(2,pw);
+		Context init = new InitialContext();
+	    DataSource ds = (DataSource)init.lookup("java:comp/env/jdbc/kndb");
+	    conn = ds.getConnection();
+	    
+	    PreparedStatement pstmt = conn.prepareStatement(sql);
+	    pstmt.setString(1, email);
+	    pstmt.setString(2, pw);
+	    
 	    ResultSet rs = pstmt.executeQuery();
+	    
 	    if(rs.next()){
-		System.out.println(rs.getString("name"));
-		System.out.println(rs.getString("pw"));
-		System.out.println(rs.getString("email"));
-		isLogin = true;
-	    } else{
-	    	System.out.println("아이디  확인");
+	   	System.out.println(rs.getString("name"));
+		isLogin = true; //데이터 존재 시 true로 변경
+	    } else {
+	 		out.println("<script> alert('아이디 또는 패스워드 재확인!'); location.href= '../Signup.jsp';</script>");
 	    } 
 	    connect = true;
 	    conn.close();
@@ -42,8 +48,6 @@
 	    connect = false;
 	    e.printStackTrace();
 	}
-	
-	
 %>
 <!DOCTYPE html>
 <html>
@@ -58,8 +62,8 @@
 <% if(isLogin){%>
 	<script> alert("로그인 성공!");</script>
 	이름 : <b style="color:Tomato;"><%=name %></b><br>
-	비밀번호 : <b style="color:Tomato;"><%=pw %></b><br>
-	<a href="https://github.com/sonjunsoo/Home.git">입장</a>
+	이메일 : <b style="color:Tomato;"><%=email %></b><br>
+	<a href=" https://sonjunsoo.github.io/HTML/">입장</a>
 	
 <% } else { %>
 	<script>alert("로그인 실패!"); 
