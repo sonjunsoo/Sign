@@ -16,10 +16,10 @@
 
 	String email = request.getParameter("email");
 	String pw = request.getParameter("password");
-	String name = request.getParameter("username");
+	String name = ""; // db에서 받아온 이름 html 부분에서 출력
 
 //DB에서 받아온 정보로 email과 password 비교
-
+//html부분 사용
 	Connection conn=null;
 	Boolean connect = false;
 	Boolean isLogin = false;	
@@ -37,7 +37,8 @@
 	    ResultSet rs = pstmt.executeQuery();
 	    
 	    if(rs.next()){
-	   	System.out.println(rs.getString("name"));
+	    name = rs.getString("name");
+	   	System.out.println();
 		isLogin = true; //데이터 존재 시 true로 변경
 	    } else {
 	 		out.println("<script> alert('아이디 또는 패스워드 재확인!'); location.href= '../Signup.jsp';</script>");
@@ -49,6 +50,7 @@
 	    e.printStackTrace();
 	}
 %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -61,9 +63,10 @@
 
 <% if(isLogin){%>
 	<script> alert("로그인 성공!");</script>
+	<b><%=name %></b>님 반갑습니다.<br><br>
 	이름 : <b style="color:Tomato;"><%=name %></b><br>
 	이메일 : <b style="color:Tomato;"><%=email %></b><br>
-	<a href=" https://sonjunsoo.github.io/HTML/">입장</a>
+	<a href="https://sonjunsoo.github.io/Home/">홈페이지 입장</a>
 	
 <% } else { %>
 	<script>alert("로그인 실패!"); 

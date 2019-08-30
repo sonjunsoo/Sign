@@ -3,7 +3,6 @@
 <%@page import="javax.naming.InitialContext"%>
 <%@page import="javax.naming.Context"%>
 <%@page import="java.sql.PreparedStatement"%>
-<%@page import="java.sql.DriverManager"%>
 <%@page import="java.sql.Connection"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -29,7 +28,7 @@ try{
     ResultSet rs = pstmt.executeQuery();
     
     if(rs.next()){
-    	System.out.println(rs.getString("email"));
+    System.out.println(rs.getString("email"));
 	System.out.println(rs.getString("pw"));
     } else {
     	System.out.println("아이디  재확인");
